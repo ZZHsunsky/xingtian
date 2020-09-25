@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 import tensorflow as tf
+from datetime import datetime
 from xt.model.tf_compat import Dense, Input, Conv2D, \
     Model, Adam, Lambda, Flatten, K
 
@@ -63,6 +64,19 @@ class ImpalaCnn(XTModel):
         self.adv = tf.placeholder(tf.float32, name="adv", shape=(None, 1))
         self.infer_p, self.infer_v = model([self.infer_state, self.adv])
         self.sess.run(tf.initialize_all_variables())
+        
+        tenboard_dir = 'tenboard_dir_impala'
+        writer = tf.summary.FileWriter(tenboard_dir)
+        writer.add_graph(self.sess.graph)
+
+        # logs = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        # tboard_callback = tf.keras.callbacks.TensorBoard(log_dir = logs,
+        #                                                  histogram_freq = 1,
+        #                                                  profile_batch = '20,100')
+        # model.fit(state_input_1,
+        #         epochs=2,
+        #         validation_data=state_input_1,
+        #         callbacks = [tboard_callback])
 
         return model
 

@@ -46,7 +46,7 @@ def test(logdir_root="/tmp/.xt_data/tensorboard"):
             summary2.add_scalar("train_reward", reward, dummy_index / 5)
 
     vision_call = subprocess.Popen(
-        "tensorboard --logdir={}".format(logdir_root), shell=True
+        "tensorboard --logdir={} --host=192.168.1.128".format(logdir_root), shell=True
     )
     vision_call.wait()
 

@@ -50,7 +50,9 @@ def _makeup_learner(config_info, data_url, verbosity):
     _exp_params = pprint.pformat(config_info, indent=0, width=1,)
     logging.info("init learner with:\n{}\n".format(_exp_params))
 
+    # broker主要是负责通信调度
     broker_master = launch_broker(config_info)
+    
     eval_adapter = setup_evaluate_adapter(config_info, broker_master, verbosity)
 
     # fixme: split the relation between learner and tester

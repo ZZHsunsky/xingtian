@@ -34,7 +34,7 @@ from xt.framework.comm.uni_comm import UniComm
 from xt.framework.remoter import dist_model
 from xt.framework.comm.message import message, get_msg_info, set_msg_data
 
-
+# 知道有多少个节点
 class BrokerMaster(object):
     def __init__(self, node_config_list, start_port=None):
         self.node_config_list = node_config_list
@@ -45,15 +45,21 @@ class BrokerMaster(object):
             start_port = comm_conf.get_start_port()
         self.start_port = start_port
         logging.info("master broker init on port: {}".format(start_port))
+
+        # Communicate配置，主要是测试端口号可用不可用
         self.comm_conf = comm_conf
 
         recv_port, send_port = get_port(start_port)
+
+        # 维护一个zmq实例，用来接收消息
         self.recv_slave = UniComm("CommByZmq", type="PULL", port=recv_port)
+        # 维护一组zmq实例，用来接收消息和发送消息
         self.send_slave = [
             UniComm("CommByZmq", type="PUSH", port=send_port + i)
             for i in range(self.node_num)
         ]
-
+        
+        # 维护一个队列，是多线程同步数据常用的数据结构
         self.recv_local_q = UniComm("LocalMsg")
         self.send_local_q = dict()
 
@@ -61,7 +67,10 @@ class BrokerMaster(object):
 
     def start_data_transfer(self):
         """ start transfer data and other thread """
+
+        #开启子线程接收消息
         data_transfer_thread = threading.Thread(target=self.recv_broker_slave)
+        # 设置异步守护模式，主进程退出，子线程退出
         data_transfer_thread.setDaemon(True)
         data_transfer_thread.start()
 
@@ -77,6 +86,7 @@ class BrokerMaster(object):
         """ recv remote train data in sync mode"""
         while True:
             recv_data = self.recv_slave.recv_bytes()
+            # 对zmq接到的数据需要解序列
             recv_data = deserialize(lz4.frame.decompress(recv_data))
 
             cmd = get_msg_info(recv_data, "cmd")
@@ -126,6 +136,7 @@ class BrokerMaster(object):
                     self.send_slave[broker_id].send(recv_data)
 
     def register(self, cmd):
+        # 注册一个本地通信实例
         self.send_local_q.update({cmd: UniComm("LocalMsg")})
         return self.send_local_q[cmd]
 
@@ -147,7 +158,6 @@ class BrokerMaster(object):
         }
         for q in self.send_slave:
             q.send(alloc_cmd)
-
     def close(self, close_cmd):
         for slave in self.send_slave:
             slave.send(close_cmd)
@@ -181,6 +191,7 @@ class BrokerMaster(object):
 
 
 class BrokerSlave(object):
+    # 经纪人的从节点
     def __init__(self, ip_addr, broker_id, start_port):
         self.broker_id = broker_id
         train_port, predict_port = get_port(start_port)

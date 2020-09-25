@@ -93,6 +93,10 @@ class PpoCnn(XTModel):
         self.train_op = self.trainer.apply_gradients(grads_and_var)
         self.sess.run(tf.initialize_all_variables())
 
+        tenboard_dir = 'tenboard_dir_ppo'
+        writer = tf.summary.FileWriter(tenboard_dir)
+        writer.add_graph(self.sess.graph)
+
     def train(self, state, label):
         with self.graph.as_default():
             K.set_session(self.sess)

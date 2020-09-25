@@ -28,7 +28,7 @@ MAX_LEARNER_NUM = 10
 START_PORT = 20000
 PORTNUM_PERLEARNER = MAX_ACTOR_NUM + 1
 
-
+# 初始化，查看redis，连接redis, 生成端口池，即检测端口号哪些可用
 class CommConf(object):
     def __init__(self):
         try:

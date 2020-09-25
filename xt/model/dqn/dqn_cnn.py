@@ -58,6 +58,11 @@ class DqnCnn(XTModel):
                                           shape=(None, ) + tuple(self.state_dim))
         self.infer_v = model(self.infer_state)
         self.sess.run(tf.initialize_all_variables())
+
+        tenboard_dir = 'tenboard_dir_dqn'
+        writer = tf.summary.FileWriter(tenboard_dir)
+        writer.add_graph(self.sess.graph)
+
         return model
 
     def predict(self, state):

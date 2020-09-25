@@ -28,6 +28,7 @@ Usage:
 import argparse
 import pprint
 import yaml
+import xt
 from absl import logging
 
 from xt.train import main as xt_train

@@ -88,7 +88,7 @@ def main():
         print("start single history tensorboard...")
 
     # start tensorboard
-    vision_call = subprocess.Popen("tensorboard --logdir={}".format(xt_bm_config.default_tb_path), shell=True)
+    vision_call = subprocess.Popen("tensorboard --logdir={} --host=192.168.1.128".format(xt_bm_config.default_tb_path), shell=True)
     vision_call.wait()
 
 if __name__ == "__main__":
